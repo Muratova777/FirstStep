@@ -1,0 +1,78 @@
+#include <iostream>
+#include <memory>
+
+using namespace std;
+
+template <class T> class Unique_ptr
+{
+	T* m_ptr;
+public:
+	Unique_ptr(T* ptr = nullptr) : m_ptr(ptr) {}
+	~Unique_ptr() { if (m_ptr != nullptr) delete m_ptr; cout << "Destructor\n"; }
+	Unique_ptr(const Unique_ptr& obj) = delete;
+	Unique_ptr(Unique_ptr&& obj) : m_ptr(obj.m_ptr) { obj.m_ptr = nullptr; }
+	Unique_ptr& operator=(const Unique_ptr& obj) = delete;
+	Unique_ptr& operator=(Unique_ptr&& obj) noexcept
+	{
+		if (this == &obj) return *this;
+		if (m_ptr != nullptr) delete m_ptr;
+		m_ptr = obj.m_ptr;
+		obj.m_ptr = nullptr;
+		return *this;
+	}
+
+	T& operator*() const { return *m_ptr; }
+	T* operator->()  const { return m_ptr; }
+	T* GetPoint()  const { return m_ptr; }
+	bool isNull()  const { return m_ptr == NULL; }
+	T* release()  const {
+		T* pTemp = m_ptr;
+		m_ptr = nullptr;
+		return pTemp;
+	}
+
+	operator bool() {
+		if (m_ptr == nullptr) return true;
+		else return false;
+	}
+};
+
+class Item
+{
+public:
+	Item() { cout << "Item  achived\n"; }
+	~Item() { cout << "Item destroyed\n"; }
+	void Greeting() { cout << "Hello world!\n"; }
+	friend ostream& operator<<(ostream& out, const Item& item)
+	{
+		cout << " This is the greeting\n";
+		return out;
+	}
+
+};
+
+
+void main()
+{
+	Unique_ptr<Item> pItem1(new Item);
+	
+	Unique_ptr<Item>pItem2;
+	
+	
+	cout << "pointer 1 has " << (pItem1.isNull() ? "no address\n" : "some address\n");
+
+	pItem2 = move(pItem1);
+	cout << "\n pointer 2 took away the address of pointer 1\n";
+
+	cout << "pointer 1 has " << (pItem1.isNull() ? "no address\n" : "some address\n");
+	cout << "pointer 2 has " << (pItem2.isNull() ? "no address\n" : "some address\n");
+
+	cout << "\n Creation the array of pointers\n";
+	auto pItem3 = make_unique<Item[]>(5);
+	cout << "\n" << pItem3[0] << "\n";
+
+cout << endl;
+	cout << "\t\t\t\t\t\t\t\t\t\t The programe is created by Muratova\:\)\n";
+	system("pause");
+
+}
